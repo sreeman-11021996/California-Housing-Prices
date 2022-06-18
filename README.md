@@ -16,7 +16,8 @@ conda create -p venv python==3.7 -y
 
 # use command prompt
 
-
+i) GIT commands:
+------------
 1. To Add files to git
 .....
 git add .
@@ -76,3 +77,23 @@ docker ps
 Tos stop docker conatiner
 
 docker stop <container_id>
+
+Dockerfile:
+-----------
+=> CMD gunicorn --workers=4 --bind 0.0.0.0:$PORT app:app
+    app : app -> module_name : flask_object
+    gunicorn -> tool to connect 
+    workers -> like n_jobs
+=> EXPOSE $PORT 
+    $PORT -> port environment variable that we recieve from Heroku machine
+
+=> how to run setup.py
+...
+python setup.py install
+....
+=> installing all dependensies including housing pckg
+... we need setup.py file to use "-e ."
+In requirements.txt  -> we can add "-e ." at the last line
+In terminal:
+"pip install -r requirements.txt"
+...
