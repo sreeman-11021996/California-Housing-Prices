@@ -50,3 +50,6 @@ ModelPusherConfig = namedtuple("ModelPusherConfig",["export_dir_path"])
 # export_dir_path -> where to export our new model
 
 # ..............................................................................
+
+TrainingPipelineConfig = namedtuple("TrainingPipelineConfig",
+["artifact_dir"])
