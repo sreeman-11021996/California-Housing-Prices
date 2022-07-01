@@ -1,6 +1,6 @@
 import yaml
 from housing.exception import HousingException
-import os,sys
+import sys
 
 def read_yaml_file (file_path:str) -> dict:
     """

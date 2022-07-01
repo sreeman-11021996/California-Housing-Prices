@@ -1,6 +1,7 @@
 from housing.entity.config_entity import DataIngestionConfig, \
-DataValidationConfig,DataTransformationConfig,ModelTrainingConfig, \
+DataValidationConfig,DataTransformationConfig,ModelTrainerConfig, \
 ModelEvaluationConfig,ModelPusherConfig,TrainingPipelineConfig
+#from housing.entity.config_entity import *
 from housing.util.util import read_yaml_file
 from housing.logger import logging
 import os,sys
@@ -12,33 +13,129 @@ class Configuration:
     
     def __init__ (self,config_file_path:str =CONFIG_FILE_PATH,
         current_time_stamp:str = CURRENT_TIME_STAMP) -> None:
-        
-        self.config_info  = read_yaml_file(file_path=config_file_path)
-        self.training_pipeline_config = self.get_training_pipeline_config()
-        self.time_stamp = current_time_stamp
-
+        try:
+            self.config_info  = read_yaml_file(file_path=config_file_path)
+            self.training_pipeline_config = self.get_training_pipeline_config()
+            self.time_stamp = current_time_stamp
+        except Exception as e:
+            raise HousingException(e,sys) from e
     
     def get_data_ingestion_config(self) -> DataIngestionConfig:
-        pass
+        
+        try:
+        
+            artifact_dir = self.training_pipeline_config.artifact_dir
+            
+            data_ingestion_artifact_dir=os.path.join(
+                artifact_dir,
+                DATA_INGESTION_ARTIFACT_DIR,
+                self.time_stamp
+            )
+            
+            data_ingestion_info_dict = self.config_info[DATA_INGESTION_CONFIG_KEY]
+            
+            dataset_download_url = data_ingestion_info_dict
+            [DATA_INGESTION_DOWNLOAD_URL_KEY]
+            
+            tgz_download_dir = os.path.join(
+                data_ingestion_artifact_dir,
+                data_ingestion_info_dict[DATA_INGESTION_TGZ_DOWNLOAD_DIR_KEY]
+            )
+            
+            raw_data_dir = os.path.join(data_ingestion_artifact_dir,
+            data_ingestion_info_dict[DATA_INGESTION_RAW_DATA_DIR_KEY]
+            )
+
+            ingested_data_dir = os.path.join(
+                data_ingestion_artifact_dir,
+                data_ingestion_info_dict[DATA_INGESTION_INGESTED_DIR_NAME_KEY]
+            )
+            
+            ingested_train_dir = os.path.join(
+                ingested_data_dir,
+                data_ingestion_info_dict[DATA_INGESTION_TRAIN_DIR_KEY]
+            )
+            ingested_test_dir =os.path.join(
+                ingested_data_dir,
+                data_ingestion_info_dict[DATA_INGESTION_TEST_DIR_KEY]
+            )
+
+
+            data_ingestion_config = DataIngestionConfig(
+                dataset_download_url=dataset_download_url, 
+                tgz_download_dir=tgz_download_dir, 
+                raw_data_dir=raw_data_dir, 
+                ingested_train_dir=ingested_train_dir, 
+                ingested_test_dir=ingested_test_dir
+            )
+            
+            logging.info(f"Data Ingestion config: {data_ingestion_config}")
+            return data_ingestion_config
+        
+        except Exception as e:
+            raise HousingException(e,sys) from e
+        
     def get_data_validation_config(self) -> DataValidationConfig:
-        pass
+        
+        try:
+            artifact_dir = self.training_pipeline_config.artifact_dir
+            
+            data_validation_artifact_dir=os.path.join(
+                artifact_dir,
+                DATA_VALIDATION_ARTIFACT_DIR,
+                self.time_stamp
+            )
+            
+            data_validation_info_dict = self.config_info[DATA_VALIDATION_CONFIG_KEY]
+            schema_file_name = data_validation_info_dict[DATA_VALIDATION_SCHEMA_FILE_NAME_KEY]
+            
+            schema_file_path = os.path.join(
+                data_validation_artifact_dir,
+                schema_file_name
+            )
+            
+            data_validation_config = DataValidationConfig(
+                schema_file_path=schema_file_path
+            )
+            
+            logging.info(f"Data Validation config: {data_validation_config}")
+            return data_validation_config
+        
+        except Exception as e:
+            raise HousingException(e,sys) from e
+        
     def get_data_tranformation_config(self)->DataTransformationConfig:
-        pass
-    def get_model_trainer_config(self)->ModelTrainingConfig:
-        pass
+        try:
+            pass
+        except Exception as e:
+            raise HousingException(e,sys) from e
+        
+    def get_model_trainer_config(self)->ModelTrainerConfig:
+        try:
+            pass
+        except Exception as e:
+            raise HousingException(e,sys) from e
+        
     def get_model_evaluation_config(self)->ModelEvaluationConfig:
-        pass
+        try:
+            pass
+        except Exception as e:
+            raise HousingException(e,sys) from e
+        
     def model_pusher_config(self)->ModelPusherConfig:
-        pass
+        try:
+            pass
+        except Exception as e:
+            raise HousingException(e,sys) from e
     
     def get_training_pipeline_config(self)->TrainingPipelineConfig:
         
         try:
-            training_pipeline_config = self.config_info
-            [TRAINING_PIPELINE_CONFIG_KEY]
+            training_pipeline_config_dict = self.config_info[TRAINING_PIPELINE_CONFIG_KEY]
+            
             artifact_dir = os.path.join(ROOT_DIR,
-            training_pipeline_config[TRAINING_PIPELINE_NAME_KEY],
-            training_pipeline_config[TRAINING_PIPELINE_ARTIFACT_DIR_KEY]
+            training_pipeline_config_dict[TRAINING_PIPELINE_NAME_KEY],
+            training_pipeline_config_dict[TRAINING_PIPELINE_ARTIFACT_DIR_KEY]
             )
 
             training_pipeline_config = TrainingPipelineConfig(

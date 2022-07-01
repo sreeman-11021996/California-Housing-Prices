@@ -5,8 +5,8 @@ from collections import namedtuple
 # ..............................................................................
 
 DataIngestionConfig = namedtuple("DataIngestionConfig",
-["dataet_download_url","tgz_download_dir","raw_data_dir","ingested_train_dir",
-"ingested_testdir"])
+["dataset_download_url","tgz_download_dir","raw_data_dir","ingested_train_dir",
+"ingested_test_dir"])
 
 # dataet_download_url ->  Download url for data
 # tgz_download_dir -> Download folder (Compressed file)
@@ -22,7 +22,7 @@ DataValidationConfig = namedtuple("DataValidationConfig",["schema_file_path"])
 
 DataTransformationConfig = namedtuple("DataTransformationConfig",
 ["add_bedroom_per_room","transformed_train_dir","transformed_test_dir",
-"preprocessed_oject_file_path"])
+"preprocessed_object_file_path"])
 
 # transformed_train_dir -> train_trf.csv
 # transformed_test_dir  -> test_trf.csv
@@ -30,15 +30,15 @@ DataTransformationConfig = namedtuple("DataTransformationConfig",
 
 # ..............................................................................
 
-ModelTrainingConfig = namedtuple("ModelTrainingConfig",
-["trained_model_file_path","base_accuracy"])
+ModelTrainerConfig = namedtuple("ModelTrainerConfig", ["trained_model_file_path",
+                                                       "base_accuracy"])
 
 # base_accuracy -> expectation
 # trained_model_file_path -> model.pkl
 
 # ..............................................................................
 
-ModelEvaluationConfig = namedtuple("ModelEvaluationConfig",
+ModelEvaluationConfig = namedtuple("ModelEvaluationConfig", 
 ["model_evaluation_file_path","time_stamp"])
 
 # model_evaluation_file_path -> file path for model in production
@@ -46,10 +46,10 @@ ModelEvaluationConfig = namedtuple("ModelEvaluationConfig",
 
 # ..............................................................................
 
-ModelPusherConfig = namedtuple("ModelPusherConfig",["export_dir_path"])
+ModelPusherConfig = namedtuple("ModelPusherConfig", ["export_dir_path"])
 # export_dir_path -> where to export our new model
 
 # ..............................................................................
 
-TrainingPipelineConfig = namedtuple("TrainingPipelineConfig",
-["artifact_dir"])
+TrainingPipelineConfig = namedtuple("TrainingPipelineConfig", ["artifact_dir"])
+# artifact dir -> where all pipeline component results are stored for all cycles
