@@ -46,7 +46,7 @@ ModelEvaluationConfig = namedtuple("ModelEvaluationConfig",
 
 # ..............................................................................
 
-ModelPusherConfig = namedtuple("ModelPusherConfig", ["export_dir_path"])
+ModelPusherConfig = namedtuple("ModelPusherConfig", ["model_export_dir_path"])
 # export_dir_path -> where to export our new model
 
 # ..............................................................................
