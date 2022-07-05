@@ -31,32 +31,33 @@ class Configuration:
                 self.time_stamp
             )
             
-            data_ingestion_info:dict = self.config_info[DATA_INGESTION_CONFIG_KEY]
+            data_ingestion_config_info:dict = self.config_info[
+                DATA_INGESTION_CONFIG_KEY]
             
-            dataset_download_url = data_ingestion_info[
+            dataset_download_url = data_ingestion_config_info[
                 DATA_INGESTION_DOWNLOAD_URL_KEY]
             
             tgz_download_dir = os.path.join(
                 data_ingestion_artifact_dir,
-                data_ingestion_info[DATA_INGESTION_TGZ_DOWNLOAD_DIR_KEY]
+                data_ingestion_config_info[DATA_INGESTION_TGZ_DOWNLOAD_DIR_KEY]
             )
             
             raw_data_dir = os.path.join(data_ingestion_artifact_dir,
-            data_ingestion_info[DATA_INGESTION_RAW_DATA_DIR_KEY]
+            data_ingestion_config_info[DATA_INGESTION_RAW_DATA_DIR_KEY]
             )
 
             ingested_data_dir = os.path.join(
                 data_ingestion_artifact_dir,
-                data_ingestion_info[DATA_INGESTION_INGESTED_DIR_NAME_KEY]
+                data_ingestion_config_info[DATA_INGESTION_INGESTED_DIR_NAME_KEY]
             )
             
             ingested_train_dir = os.path.join(
                 ingested_data_dir,
-                data_ingestion_info[DATA_INGESTION_TRAIN_DIR_KEY]
+                data_ingestion_config_info[DATA_INGESTION_TRAIN_DIR_KEY]
             )
             ingested_test_dir =os.path.join(
                 ingested_data_dir,
-                data_ingestion_info[DATA_INGESTION_TEST_DIR_KEY]
+                data_ingestion_config_info[DATA_INGESTION_TEST_DIR_KEY]
             )
 
 
@@ -84,18 +85,40 @@ class Configuration:
                 self.time_stamp
             )
             
-            data_validation_info:dict = self.config_info[
+            data_validation_config_info:dict = self.config_info[
                 DATA_VALIDATION_CONFIG_KEY]
-            schema_file_name = data_validation_info[
+            
+            schema_dir = data_validation_config_info[
+                DATA_VALIDATION_SCHEMA_DIR_KEY]
+            schema_file_name = data_validation_config_info[
                 DATA_VALIDATION_SCHEMA_FILE_NAME_KEY]
             
             schema_file_path = os.path.join(
-                data_validation_artifact_dir,
+                ROOT_DIR,
+                schema_dir,
                 schema_file_name
+                )
+            
+            report_file_name = data_validation_config_info[
+                DATA_VALIDATION_REPORT_FILE_NAME_KEY
+            ]
+            report_file_path = os.path.join(
+                data_validation_artifact_dir,
+                report_file_name
+            )
+            
+            report_page_file_name = data_validation_config_info[
+                DATA_VALIDATION_REPORT_PAGE_FILE_NAME_KEY
+            ]
+            report_page_file_path = os.path.join(
+                data_validation_artifact_dir,
+                report_page_file_name
             )
             
             data_validation_config = DataValidationConfig(
-                schema_file_path=schema_file_path
+                schema_file_path=schema_file_path,
+                report_file_path=report_file_path,
+                report_page_file_path=report_page_file_path
             )
             
             logging.info(f"Data Validation config: {data_validation_config}")

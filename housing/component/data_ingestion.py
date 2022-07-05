@@ -6,7 +6,7 @@ from housing.entity.artifact_entity import DataIngestionArtifact
 import tarfile  # to download url
 import numpy as np
 #from six.moves import urllib    # to extract tdz file
-import urllib # to extract tdz file
+from urllib import request # to extract tdz file
 import pandas as pd
 from sklearn.model_selection import StratifiedShuffleSplit
 
@@ -45,7 +45,8 @@ class DataIngestion:
             # extract data into the file path
             logging.info(f"Downloading file from :[{download_url}] into "
                          ":[{tgz_file_path}]")
-            urllib.request.urlretrieve(download_url, tgz_file_path)
+            
+            request.urlretrieve(download_url, tgz_file_path)
             logging.info(f"File :[{tgz_file_path}] has been downloaded "
                          "successfully.")
             return tgz_file_path
