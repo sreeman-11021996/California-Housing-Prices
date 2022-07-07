@@ -144,6 +144,7 @@ class DataIngestion:
             self.extract_tgz_file(tgz_file_path=tgz_file_path)
             data_ingestion_artifact = self.split_data_as_train_test()
             
+            logging.info(f"Data ingestion artifact: {data_ingestion_artifact}")
             return data_ingestion_artifact
         
         except Exception as e:

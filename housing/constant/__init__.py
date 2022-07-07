@@ -83,3 +83,10 @@ SCHEMA_NUMERICAL_COLUMNS_KEY = "numerical_columns"
 SCHEMA_CATEGORICAL_COLUMNS_KEY = "categorical_colummns"
 SCHEMA_TARGET_COLUMN_KEY = "target_column"
 SCHEMA_DOMAIN_VALUE_KEY = "domain_value"
+
+# Data Drift related variables
+
+DATA_DRIFT_DATA_DRIFT_KEY = "data_drift"
+DATA_DRIFT_DATA_KEY = "data"
+DATA_DRIFT_METRICS_KEY = "metrics"
+DATA_DRIFT_DATASET_DRIFT_KEY = "dataset_drift"

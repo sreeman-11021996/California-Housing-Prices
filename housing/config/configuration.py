@@ -127,7 +127,7 @@ class Configuration:
         except Exception as e:
             raise HousingException(e,sys) from e
         
-    def get_data_tranformation_config(self)->DataTransformationConfig:
+    def get_data_transformation_config(self)->DataTransformationConfig:
         try:
             artifact_dir = self.training_pipeline_config.artifact_dir
             
@@ -137,27 +137,29 @@ class Configuration:
                 self.time_stamp
             )
             
-            data_transformation_info:dict = self.config_info[
+            data_transformation_config_info:dict = self.config_info[
                 DATA_TRANSFORMATION_CONFIG_KEY]
             
-            add_bedroom_per_room = data_transformation_info[
+            add_bedroom_per_room = data_transformation_config_info[
                 DATA_TRANSFORMATION_ADD_BEDROOM_PER_ROOM_KEY]
+            
             transformed_dir = os.path.join(data_transformation_artifact_dir,
-                data_transformation_info[
+                data_transformation_config_info[
                 DATA_TRANSFORMATION_TRANSFORMED_DIR_KEY])
             transformed_train_dir = os.path.join(transformed_dir,
-                data_transformation_info[
+                data_transformation_config_info[
                 DATA_TRANSFORMATION_TRANSFORMED_TRAIN_DIR_KEY])
             transformed_test_dir = os.path.join(transformed_dir,
-                data_transformation_info[
+                data_transformation_config_info[
                 DATA_TRANSFORMATION_TRANSFORMED_TEST_DIR_KEY])
+            
             preprocessing_dir = os.path.join(data_transformation_artifact_dir,
-                data_transformation_info[
+                data_transformation_config_info[
                 DATA_TRANSFORMATION_PREPROCESSING_DIR_KEY])
-            preprocessed_object_file_name = data_transformation_info[
-                DATA_TRANSFORMATION_PREPROCESSING_OBJECT_FILE_NAME_KEY]
-            preprocessed_object_file_path = os.path.join(preprocessing_dir,
-                preprocessed_object_file_name)
+            preprocessed_object_file_path = os.path.join(
+                preprocessing_dir,
+                data_transformation_config_info[
+                DATA_TRANSFORMATION_PREPROCESSING_OBJECT_FILE_NAME_KEY])
             
             data_transformation_config = DataTransformationConfig(
                 add_bedroom_per_room=add_bedroom_per_room,

@@ -4,5 +4,6 @@ gunicorn
 scikit-learn
 pandas
 six
+evidently
 dill
 -e .

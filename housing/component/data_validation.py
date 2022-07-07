@@ -1,17 +1,23 @@
-from housing.constant import SCHEMA_COLUMNS_KEY, SCHEMA_DOMAIN_VALUE_KEY
+import json
+from pydoc import html
+from housing.constant import DATA_DRIFT_DATA_DRIFT_KEY, DATA_DRIFT_DATA_KEY, DATA_DRIFT_DATASET_DRIFT_KEY, DATA_DRIFT_METRICS_KEY, SCHEMA_COLUMNS_KEY, SCHEMA_DOMAIN_VALUE_KEY
 from housing.entity.config_entity import DataValidationConfig
 from housing.logger import logging
 from housing.exception import HousingException
 import os,sys
 from housing.entity.artifact_entity import DataIngestionArtifact,\
     DataValidationArtifact
-from housing.util.util import read_yaml_file
+from housing.util.util import read_yaml_file,save_json_file
 import pandas as pd
+from evidently.model_profile import Profile
+from evidently.model_profile.sections import DataDriftProfileSection
+from evidently.dashboard import Dashboard
+from evidently.dashboard.tabs import DataDriftTab
 
 
 class DataValidation:
     
-    def __intt__(self,data_validation_config: DataValidationConfig,
+    def __init__(self,data_validation_config: DataValidationConfig,
                  data_ingestion_artifact:DataIngestionArtifact):
         try:
             logging.info(f"{'='*20}Data Validation log started.{'='*20} ")
@@ -41,25 +47,23 @@ class DataValidation:
             data_exists = False
             
             # get the data file paths
-            train_file_path = self.data_ingestion_artifact.train_file_path
-            test_file_path = self.data_ingestion_artifact.test_file_path
+            train_file_path:str = self.data_ingestion_artifact.train_file_path
+            test_file_path:str = self.data_ingestion_artifact.test_file_path
             
             # check if the file paths are valid
             if os.path.exists(train_file_path) and os.path.exists(test_file_path):
                 data_exists = True
             else:
-                message = f"Train path : [{train_file_path}] \n Test path : "
-                "[{test_file_path}] \n Check : One or Both are Missing"
+                message = f"Train path : [{train_file_path}] \n Test path : [{test_file_path}] \n Check : One or Both are Missing"
                 raise Exception(message)
             
-            logging.info(f"Train & Test data Check is Completed \n " 
-            "Train path : [{train_file_path}] \n Test path : [{test_file_path}]")    
+            logging.info(f"Train & Test data Check is Completed \n Train path : [{train_file_path}] \n Test path : [{test_file_path}]")    
             return data_exists
 
         except Exception as e:
             raise HousingException(e,sys) from e
         
-    def validate_num_columns(self):
+    def validate_num_columns(self)->bool:
         try:
             validate_num_columns = False
             no_col_schema = len(self.schema[SCHEMA_COLUMNS_KEY])
@@ -73,7 +77,7 @@ class DataValidation:
         except Exception as e:
             raise HousingException(e,sys) from e
     
-    def validate_column_names(self):
+    def validate_column_names(self)->bool:
         try:
             validate_column_names = False
             for column in self.train_df.columns:
@@ -88,7 +92,7 @@ class DataValidation:
         except Exception as e:
             raise HousingException(e,sys) from e
         
-    def validate_domain_values (self):
+    def validate_domain_values (self)->bool:
         try:
             validate_domain_values = False
             for column,category_list in self.schema[SCHEMA_DOMAIN_VALUE_KEY]. \
@@ -108,14 +112,30 @@ class DataValidation:
         
     def validate_column_dtypes (self):
         try:
-            pass
+            validate_column_dtypes = False
+            for column in self.train_df.columns:
+                try:
+                    schema_dtype = self.schema[SCHEMA_COLUMNS_KEY][column]
+                    column_dtype = str(self.train_df[column].dtype)
+                    if not column_dtype == schema_dtype:
+                        self.train_df[column].astype(schema_dtype)
+                except Exception as e:
+                    message = f"[{column}] : dtype [{column_dtype}] " + \
+                    "\n {column_dtype} cannot be typecasted to <{schema_dtype}>"
+                    raise Exception(message)
+            
+            validate_column_dtypes = True
+            
+            logging.info(f"Column Dtypes Check: Passed")
+            return validate_column_dtypes      
+              
         except Exception as e:
             raise HousingException(e,sys) from e
         
         
-    def validate_schema (self):
+    def validate_schema (self)->bool:
         try:
-
+            is_validated = False
             schema_file_path = self.data_validation_config.schema_file_path
             # read the schema
             self.schema = read_yaml_file(file_path=schema_file_path)
@@ -123,39 +143,96 @@ class DataValidation:
             self.train_df,self.test_df =self.get_train_and_test_dataset()            
             
             #1. Number of Column
-            self.validate_num_columns()
-            
+            validated_num_columns = self.validate_num_columns()
             #2. Check column names
-            self.validate_column_names()
-            
+            validated_column_names = self.validate_column_names()
             #3. Check the value of ocean proximity 
-            self.validate_domain_values()
-            
+            validated_domain_values = self.validate_domain_values()
             #4. check dtypes of columns
+            validated_column_dtypes = self.validate_column_dtypes()
             
-             
+            is_validated =  (validated_num_columns & validated_column_names 
+                            & validated_domain_values & validated_column_dtypes)
             
+            logging.info(f"Validation of Schema is Completed")
+            return is_validated
         
         except Exception as e:
             raise HousingException(e,sys) from e
     
-    def initiate_validation(self) -> DataValidationArtifact:
+    def get_and_save_data_drift_report_file(self)->json:
         try:
-            self.check_train_and_test_file_exists()
+            profile = Profile(sections=[DataDriftProfileSection()])
+            profile.calculate(self.train_df,self.test_df)
+            report = profile.json()
             
-            schema_file_path = None
-            report_file_path = None
-            report_page_file_path = None
-            message = None
+            report_json = json.loads(report)
+            save_json_file(
+                file_path = self.data_validation_config.report_file_path,
+                file=report_json
+                )
+            
+            logging.info(f"JSON Report has been generated successfully.")
+            return report_json
+            
+        except Exception as e:
+            raise HousingException(e,sys) from e
+    
+    def save_data_drift_report_page_file(self)->html:
+        try:
+            dashboard = Dashboard(tabs=[DataDriftTab()])
+            dashboard.calculate(self.train_df,self.test_df)
+            
+            report_page_file_path = \
+                self.data_validation_config.report_page_file_path
+            report_page_file_dir = os.path.dirname(report_page_file_path)
+            os.makedirs(report_page_file_dir,exist_ok=True)
+            
+            dashboard.save(report_page_file_path)
+            logging.info(f"HTML Report has been generated " + \
+                "\n {os.path.basename(report_page_file_path)} located in " + \
+                "{report_page_file_path}")
+            
+        except Exception as e:
+            raise HousingException(e,sys) from e
+    
+    def check_data_drift (self)->bool:
+        try:
+            validated_data_drift = False
+            report = self.get_and_save_data_drift_report_file()
+            #print(report["data_drift"]["data"]["metrics"]["dataset_drift"])
+            if report[DATA_DRIFT_DATA_DRIFT_KEY][DATA_DRIFT_DATA_KEY][
+                DATA_DRIFT_METRICS_KEY][DATA_DRIFT_DATASET_DRIFT_KEY]:
+                message = f"Data Drift is found in Dataset"
+                raise Exception(message)
+            self.save_data_drift_report_page_file()       
+            validated_data_drift=True
+                
+            logging.info(f"Data Drift Check: Passed")
+            return validated_data_drift
+        except Exception as e:
+            raise HousingException(e,sys) from e
+    
+    def initiate_data_validation(self) -> DataValidationArtifact:
+        try:
+            is_train_and_test_file_exists = self.check_train_and_test_file_exists()
+            is_validated:bool = self.validate_schema()
+            is_data_drift = self.check_data_drift()
+            
+            schema_file_path = self.data_validation_config.schema_file_path
+            report_file_path = self.data_validation_config.report_file_path
+            report_page_file_path = self.data_validation_config.report_page_file_path
+            message = f"Data Validation performed successully."
             
             data_validation_artifact = DataValidationArtifact(
                 schema_file_path=schema_file_path,
                 report_file_path=report_file_path,
                 report_page_file_path=report_page_file_path,
-                is_validated=True,
+                is_validated=is_validated,
                 message=message
             )
             
+            logging.info(f"Data validation artifact: {data_validation_artifact}")
             return data_validation_artifact
         
         except Exception as e:

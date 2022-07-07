@@ -10,3 +10,7 @@ DataValidationArtifact = namedtuple("DataValidationArtifact",
 # we can have a report mentioning the results of all validation to be dropped or
 # imputed in Transformation Phase
 # Then we can have it detect duplicates,missing_values,outliers
+
+DataTransformationArtifact = namedtuple("DataTransformationArtifact",
+["transformed_train_file_path","transformed_test_file_path",
+ "preprocessed_object_file_path","is_transformed","message"])
