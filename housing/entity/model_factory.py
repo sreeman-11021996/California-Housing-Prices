@@ -254,6 +254,26 @@ class ModelFactory:
         except Exception as e:
             raise HousingException(e, sys) from e
     
+    def get_best_model_from_grid_searched_best_model_list(self,
+        grid_searched_best_model_list:List[GridSearchedBestModel],
+        base_accuracy = 0.6 )->BestModel:
+        try:
+            best_model = None
+            for grid_searched_best_model in grid_searched_best_model_list:
+                if base_accuracy < grid_searched_best_model.best_score:
+                    logging.info(f"Acceptable model found:" + \
+                        "{grid_searched_best_model}")
+                    base_accuracy = grid_searched_best_model.best_score
+
+                    best_model = grid_searched_best_model
+                    
+            if not best_model:
+                raise Exception(f"None of Model has base accuracy: {base_accuracy}")
+            logging.info(f"Best model: {best_model}")
+            return best_model
+        except Exception as e:
+            raise HousingException(e,sys) from e
+    
     def get_best_model(self, X, y,base_accuracy=0.6) -> BestModel:
         try:
             logging.info("Started Initializing model from config file")
