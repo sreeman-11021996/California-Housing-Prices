@@ -90,3 +90,13 @@ DATA_DRIFT_DATA_DRIFT_KEY = "data_drift"
 DATA_DRIFT_DATA_KEY = "data"
 DATA_DRIFT_METRICS_KEY = "metrics"
 DATA_DRIFT_DATASET_DRIFT_KEY = "dataset_drift"
+
+
+# Model Factory related variables
+
+GRID_SEARCH_KEY = 'grid_search'
+MODULE_KEY = 'module'
+CLASS_KEY = 'class'
+PARAM_KEY = 'params'
+MODEL_SELECTION_KEY = 'model_selection'
+SEARCH_PARAM_GRID_KEY = "search_param_grid"
