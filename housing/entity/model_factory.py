@@ -171,6 +171,17 @@ class ModelFactory:
             raise HousingException(e,sys) from e
         
     @staticmethod
+    def read_params(model_config_path:str)->dict:
+        try:
+            with open(model_config_path,"r") as yaml_file:
+                config:dict =  yaml.safe_load(yaml_file)
+                logging.info(f"{os.path.basename(model_config_path)} " + \
+                    "has been safely loaded")
+                return config
+        except Exception as e:
+            raise HousingException(e,sys) from e
+        
+    @staticmethod
     def update_property_of_class(instance_ref:object, property_data: dict):
         try:
             if not isinstance(property_data, dict):
@@ -182,18 +193,6 @@ class ModelFactory:
             return instance_ref
         except Exception as e:
             raise HousingException(e, sys) from e
-
-    
-    @staticmethod
-    def read_params(model_config_path:str)->dict:
-        try:
-            with open(model_config_path,"r") as yaml_file:
-                config:dict =  yaml.safe_load(yaml_file)
-                logging.info(f"{os.path.basename(model_config_path)} " + \
-                    "has been safely loaded")
-                return config
-        except Exception as e:
-            raise HousingException(e,sys) from e
     
     @staticmethod
     def class_for_name(module_name:str, class_name:str):
@@ -384,7 +383,7 @@ class ModelFactory:
             logging.info("Started Initializing model from config file")
             initialized_model_list = self.get_initialized_model_list()
             logging.info(f"Initialized model: {initialized_model_list}")
-            """grid_searched_best_model_list = self.\
+            grid_searched_best_model_list = self.\
                 initiate_best_parameter_search_for_initialized_models(
                 initialized_model_list=initialized_model_list,
                 input_feature=X,
@@ -392,6 +391,6 @@ class ModelFactory:
             )
             return ModelFactory.get_best_model_from_grid_searched_best_model_list(
                 grid_searched_best_model_list,
-                base_accuracy=base_accuracy)"""
+                base_accuracy=base_accuracy)
         except Exception as e:
             raise HousingException(e, sys)

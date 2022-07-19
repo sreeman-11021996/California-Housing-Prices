@@ -4,6 +4,18 @@ from housing.logger import logging
 from housing.exception import HousingException
 import os,sys
 
+#   longitude: float
+#   latitude: float
+#   housing_median_age: float
+#   total_rooms: float
+#   total_bedrooms: float
+#   population: float
+#   households: float
+#   median_income: float
+#   median_house_value: float
+#   ocean_proximity: category
+#   income_cat: float
+
 class DataTransformation:
     
     def __init__(self,data_transformation_config:DataTransformationConfig,
